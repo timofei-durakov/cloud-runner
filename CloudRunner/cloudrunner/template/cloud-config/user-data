@@ -1,0 +1,24 @@
+#cloud-config
+users:
+ - default
+ - name: stack
+   lock-passwd: false
+   passwd: $6$rounds=4096$iX2Wgme5F1tgJk$duqxV0FKu7A6zLgcxfVF6s5ipzIVh4q.1yPjOwpFwOS3QcL68rVYXR0ao.3XJFCtd700SaNkDV4KmWvy3LkTb.
+   sudo: "ALL=(ALL) NOPASSWD:ALL"
+   groups: sudo
+   shell: /bin/bash
+   ssh-authorized-keys:
+    - ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAg5MzSjH+oawovkibQhzrs+VWOD56bgsTn0afWuDKob85e0+k1td0f05Ih6EmHtzpZWT5Dghu0+v4wCQda+T+zWw294LRsqYtCmP7GsIBxDnd+LD+cJH/GvpyyDViuYlf4U1r2q9N6CBYO9+K4bwCIN4ml2xXIqj+ktCMHt7gwSDJIUtJen45+k+KkxzmbinFSKmHn2Z8YLLfikHyHmCpGDL73W6Kxy6oBzmzQxlNgN5HiI4C3yOOL27JN4OQyotlXratpUHwXNhIlqE+/gib5JxrncC/05EUyNWpH4iFKe1Ob/l7+LYMAnfstKm2eQpp+05jPjSo31PclDhP/lLjEw== rsa-key-20140804
+
+bootcmd:
+ - echo nameserver {{network.gateway}} > /etc/resolv.conf
+
+packages:
+ - git
+ - traceroute
+ - python
+ - python-simplejson
+
+#phone_home:
+# url: http://192.168.101.1:9090
+# post: all

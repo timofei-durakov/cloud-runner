@@ -1,0 +1,6 @@
+---
+- name: devstack clone
+  hosts: devstack
+  tasks:
+  - git: repo=https://github.com/openstack-dev/devstack.git
+         dest=/home/stack/devstack

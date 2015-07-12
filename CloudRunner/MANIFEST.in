@@ -1,0 +1,2 @@
+recursive-include CloudRunner/ansible *
+recursive-include CloudRunner/template *
