@@ -29,7 +29,8 @@ class App(Base):
         'home',
         'env',
         'image_name',
-        'image_path'
+        'image_path',
+        'callback_port'
 
     }
 

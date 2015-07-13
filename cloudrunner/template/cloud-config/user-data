@@ -19,6 +19,6 @@ packages:
  - python
  - python-simplejson
 
-#phone_home:
-# url: http://192.168.101.1:9090
-# post: all
+phone_home:
+  url: http://{{network.gateway}}:{{app.callback_port}}
+  post: all

@@ -1,4 +1,5 @@
 
+from BaseHTTPServer import HTTPServer
 import shutil
 import subprocess
 import argparse
@@ -7,6 +8,7 @@ import os
 
 from jinja2 import Environment, PackageLoader
 from cloudrunner import objects
+import cloudrunner.manager.server as server
 
 
 class CloudManager(object):
@@ -15,6 +17,7 @@ class CloudManager(object):
         self.nodes = nodes
         self.app = app
         self.env = Environment(loader=PackageLoader('cloudrunner', 'template'))
+        self.deployed_nodes = set()
 
     def deploy(self):
         path = os.path.join(self.app.home, self.app.env)
@@ -68,7 +71,7 @@ class CloudManager(object):
         subprocess.call('cp ' + image + ' ' + node.home, shell=True)
         subprocess.call(' qemu-img resize ' + os.path.join(node.home, self.app.image_name)+' +' + node.size, shell=True)
         subprocess.call('virt-install --connect=qemu:///system  --name ' + node.name +
-                         ' --ram 512 --disk path=' + os.path.join(node.home, self.app.image_name) +
+                         ' --ram 1536 --disk path=' + os.path.join(node.home, self.app.image_name) +
                          ',device=disk,format=qcow2 --disk path='+os.path.join(node.home, 'config.iso')+',device=cdrom '
                          '--vcpus=1 --vnc --noautoconsole --import  --network network:' + self.network.name, shell=True)
 
@@ -80,10 +83,12 @@ class CloudManager(object):
             .dump(metadata)
 
         userdata_template = self.env.get_template('cloud-config/user-data')
-        userdata_template.stream(network=self.network, node=node)\
+        userdata_template.stream(network=self.network, node=node, app=self.app)\
             .dump(userdata)
         subprocess.Popen('genisoimage -o config.iso -V cidata -r -J meta-data user-data', cwd=node.home, shell=True)
 
+    def run_ansible(self):
+        pass
 
 def main():
     parser = argparse.ArgumentParser()
@@ -103,5 +108,19 @@ def main():
     command = args.command
     if command == 'deploy':
         manager.deploy()
+        handler = server.handleRequestsUsing(manager)
+        serv = HTTPServer((net_obj.gateway, int(app_obj.callback_port)),
+                            handler)
+        while len(manager.deployed_nodes) < len(manager.nodes):
+            serv.handle_request()
+        manager.run_ansible()
+
     elif command == 'destroy':
         manager.destroy()
+
+
+
+
+if __name__ == "__main__":
+    main()
+

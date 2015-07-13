@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: CloudRunner
+Version: 0.1
+Summary: Tool for local devstack multinode deployment
+Home-page: UNKNOWN
+Author: Timofey Durakov
+Author-email: UNKNOWN
+License: UNKNOWN
+Description: 	Tool for local devstack multinode deployment
+        
+Platform: UNKNOWN

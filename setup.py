@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
  
 setup (
-    name = "CloudRunner",
+    name = "cloud-runner",
     version = "0.1",
     description="Tool for local devstack multinode deployment",
     long_description="""\
