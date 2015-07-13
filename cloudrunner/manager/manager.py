@@ -88,7 +88,27 @@ class CloudManager(object):
         subprocess.Popen('genisoimage -o config.iso -V cidata -r -J meta-data user-data', cwd=node.home, shell=True)
 
     def run_ansible(self):
-        pass
+        self._build_inventory()
+
+    def _build_inventory(self):
+        controllers =[]
+        computes = []
+        for node in self.nodes:
+            if node.controller:
+                controllers.append(node)
+            else:
+                computes.append(node)
+        config = ConfigParser.RawConfigParser(allow_no_value=True)
+        config.add_section('controllers')
+        for node in controllers:
+            config.set('controllers', node.address)
+        config.add_section('computes')
+        for node in computes:
+            config.set('computes', node.address)
+        inventory_path = os.path.join(self.app.home, self.app.env)
+        inventory_path = os.path.join(inventory_path, 'hosts')
+        with open(inventory_path, 'wb') as configfile:
+            config.write(configfile)
 
 def main():
     parser = argparse.ArgumentParser()
