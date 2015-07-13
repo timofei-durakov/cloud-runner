@@ -1,4 +1,5 @@
 *.pyc
 env/*
-cloud_runner.egg-info/*
+*.egg-info/*
+dist/*
 .idea/*

@@ -1,9 +1,0 @@
-MANIFEST.in
-setup.py
-CloudRunner.egg-info/PKG-INFO
-CloudRunner.egg-info/SOURCES.txt
-CloudRunner.egg-info/dependency_links.txt
-CloudRunner.egg-info/entry_points.txt
-CloudRunner.egg-info/requires.txt
-CloudRunner.egg-info/top_level.txt
-CloudRunner.egg-info/zip-safe

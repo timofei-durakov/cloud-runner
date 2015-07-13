@@ -1,3 +1,0 @@
-[console_scripts]
-cloudrunner = cloudrunner.manager.manager:main
-
