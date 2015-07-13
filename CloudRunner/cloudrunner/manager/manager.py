@@ -1,4 +1,5 @@
 
+import shutil
 import subprocess
 import argparse
 import ConfigParser
@@ -23,6 +24,14 @@ class CloudManager(object):
         for node in self.nodes:
             self._deploy_node(node, path)
 
+    def destroy(self):
+        for node in self.nodes:
+            self._destroy_node(node)
+        path = os.path.join(self.app.home, self.app.env)
+        if os.path.exists(path):
+            shutil.rmtree(path=path)
+        self._destroy_network()
+
     def _generate_network(self, xml):
         template = self.env.get_template('net.xml')
         template.stream(network=self.network).dump(xml)
@@ -34,6 +43,15 @@ class CloudManager(object):
         subprocess.call(['virsh net-start ' + self.network.name], shell=True)
         subprocess.call(['virsh net-autostart ' + self.network.name],
                         shell=True)
+
+    def _destroy_network(self):
+        subprocess.call('virsh net-destroy ' + self.network.name, shell=True)
+        subprocess.call('virsh net-undefine ' + self.network.name, shell=True)
+
+
+    def _destroy_node(self, node):
+        subprocess.call('virsh destroy ' + node.name, shell=True)
+        subprocess.call('virsh undefine ' + node.name, shell=True)
 
     def _deploy_node(self, node, home):
         node_path = os.path.join(home, node.name)
@@ -67,17 +85,10 @@ class CloudManager(object):
         subprocess.Popen('genisoimage -o config.iso -V cidata -r -J meta-data user-data', cwd=node.home, shell=True)
 
 
-
-
-
-
-
-
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('conf', help="config file")
+    parser.add_argument('command', help="command to execute")
     args = parser.parse_args()
     config = ConfigParser.ConfigParser()
     config.read(args.conf)
@@ -89,6 +100,8 @@ def main():
     for name, params in config._sections.iteritems():
         nodes_set.add(objects.Node(**params))
     manager = CloudManager(net_obj, nodes_set, app_obj)
-    manager.deploy()
-    # template = env.get_template('net.xml')
-    # print template.render(network=net_obj)
+    command = args.command
+    if command == 'deploy':
+        manager.deploy()
+    elif command == 'destroy':
+        manager.destroy()
