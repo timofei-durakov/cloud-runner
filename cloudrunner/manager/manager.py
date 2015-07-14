@@ -97,7 +97,7 @@ class CloudManager(object):
         compute_template.stream(network=self.network, app=self.app)\
             .dump(compute)
         controller = os.path.join(env_home, 'controller.local.conf')
-        controller_template = self.env.get_template('ansible/compute.local.conf')
+        controller_template = self.env.get_template('ansible/controller.local.conf')
         controller_template.stream(network=self.network, app=self.app)\
             .dump(controller)
 
