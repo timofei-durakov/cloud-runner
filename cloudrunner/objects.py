@@ -1,5 +1,7 @@
 __author__ = 'tdurakov'
 
+import os
+
 import netaddr
 
 class Base(object):
@@ -39,12 +41,17 @@ class App(Base):
         'image_path',
         'callback_port',
         'controller_address',
-        'server_key'
-
+        'server_key',
+        'network',
+        'nodes'
     }
 
-    def __init__(self, **kwargs):
+    def __init__(self, network, nodes, controller_address, **kwargs):
         super(App, self).__init__(fields=App.fields, **kwargs)
+        self.env_home = os.path.join(self.home, self.env)
+        self.network = network
+        self.nodes = nodes
+        self.controller_address = controller_address
 
 
 class Node(Base):
@@ -54,7 +61,8 @@ class Node(Base):
         'controller',
         'home',
         'disk_size',
-        'memory'
+        'memory',
+        'node_home'
     }
 
     def __init__(self, **kwargs):

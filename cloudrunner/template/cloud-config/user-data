@@ -12,7 +12,7 @@ users:
     - {{app.server_key}}
 
 bootcmd:
- - echo nameserver {{network.gateway}} > /etc/resolv.conf
+ - echo nameserver {{app.network.gateway}} > /etc/resolv.conf
 
 packages:
  - git
@@ -21,5 +21,5 @@ packages:
  - python-simplejson
 
 phone_home:
-  url: http://{{network.gateway}}:{{app.callback_port}}
+  url: http://{{app.network.gateway}}:{{app.callback_port}}
   post: all

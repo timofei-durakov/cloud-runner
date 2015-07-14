@@ -3,8 +3,8 @@ network-interfaces: |
   auto eth0
   iface eth0 inet static
   address {{node.address}}
-  network {{network.network}}
-  netmask {{network.netmask}}
-  broadcast {{network.broadcast}}
-  gateway {{network.gateway}}
+  network {{app.network.network}}
+  netmask {{app.network.netmask}}
+  broadcast {{app.network.broadcast}}
+  gateway {{app.network.gateway}}
 
