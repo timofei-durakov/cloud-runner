@@ -1,5 +1,6 @@
 __author__ = 'tdurakov'
 
+import netaddr
 
 class Base(object):
     def __init__(self, fields, **kwargs):
@@ -17,11 +18,17 @@ class Network(Base):
         'broadcast',
         'gateway',
         'dhcp_start',
-        'dhcp_end'
+        'dhcp_end',
+        'floating_range'
+
     }
 
     def __init__(self, **kwargs):
         super(Network, self).__init__(fields=Network.fields, **kwargs)
+        if self.floating_range:
+            net = netaddr.IPNetwork(self.floating_range)
+            self.dhcp_start = netaddr.IPAddress(net.first)
+            self.dhcp_end = netaddr.IPAddress(net.last)
 
 
 class App(Base):
@@ -30,7 +37,9 @@ class App(Base):
         'env',
         'image_name',
         'image_path',
-        'callback_port'
+        'callback_port',
+        'controller_address',
+        'server_key'
 
     }
 

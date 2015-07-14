@@ -7,6 +7,7 @@ import ConfigParser
 import os
 
 from jinja2 import Environment, PackageLoader
+
 from cloudrunner import objects
 import cloudrunner.manager.server as server
 
@@ -87,8 +88,46 @@ class CloudManager(object):
             .dump(userdata)
         subprocess.Popen('genisoimage -o config.iso -V cidata -r -J meta-data user-data', cwd=node.home, shell=True)
 
+
+    def _generate_ansible_templates(self):
+        env_home = os.path.join(self.app.home, self.app.env)
+
+        compute = os.path.join(env_home, 'compute.local.conf')
+        compute_template = self.env.get_template('ansible/compute.local.conf')
+        compute_template.stream(network=self.network, app=self.app)\
+            .dump(compute)
+        controller = os.path.join(env_home, 'controller.local.conf')
+        controller_template = self.env.get_template('ansible/compute.local.conf')
+        controller_template.stream(network=self.network, app=self.app)\
+            .dump(controller)
+
+    def _generate_ansible_playbook(self):
+        env_home = os.path.join(self.app.home, self.app.env)
+
+        controller_playbook = os.path.join(env_home, 'devstack_controllers.yml')
+        controller_playbook_template = self.env.get_template('ansible/devstack_controllers.yml')
+        controller_playbook_template.stream(temlpate_path=os.path.join(env_home, 'controller.local.conf'))\
+            .dump(controller_playbook)
+
+        compute_playbook = os.path.join(env_home, 'devstack_computes.yml')
+        compute_playbook_template = self.env.get_template('ansible/devstack_computes.yml')
+        compute_playbook_template.stream(temlpate_path=os.path.join(env_home, 'compute.local.conf'))\
+            .dump(compute_playbook)
+
+
     def run_ansible(self):
         self._build_inventory()
+        self._generate_ansible_templates()
+        self._generate_ansible_playbook()
+        env_home = os.path.join(self.app.home, self.app.env)
+        # run controllers
+        subprocess.call('ansible-playbook -i ' +os.path.join(env_home, 'hosts') +
+                        ' ' + os.path.join(env_home, 'devstack_controllers.yml'), shell=True)
+        # run computes
+        subprocess.call('ansible-playbook -i ' +os.path.join(env_home, 'hosts') +
+                        ' ' + os.path.join(env_home, 'devstack_computes.yml'), shell=True)
+
+
 
     def _build_inventory(self):
         controllers =[]
@@ -110,6 +149,7 @@ class CloudManager(object):
         with open(inventory_path, 'wb') as configfile:
             config.write(configfile)
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('conf', help="config file")
@@ -123,7 +163,10 @@ def main():
     app_obj = objects.App(**sections.pop('app'))
     nodes_set = set()
     for name, params in config._sections.iteritems():
-        nodes_set.add(objects.Node(**params))
+        node = objects.Node(**params)
+        nodes_set.add(node)
+        if (node.controller):
+            app_obj.controller_address = node.address
     manager = CloudManager(net_obj, nodes_set, app_obj)
     command = args.command
     if command == 'deploy':
@@ -134,10 +177,17 @@ def main():
         while len(manager.deployed_nodes) < len(manager.nodes):
             serv.handle_request()
         manager.run_ansible()
-
+    elif command == 'vms':
+        manager.deploy()
+        handler = server.handleRequestsUsing(manager)
+        serv = HTTPServer((net_obj.gateway, int(app_obj.callback_port)),
+                            handler)
+        while len(manager.deployed_nodes) < len(manager.nodes):
+            serv.handle_request()
     elif command == 'destroy':
         manager.destroy()
-
+    elif command == 'ansible-only':
+        manager.run_ansible()
 
 
 

@@ -1,0 +1,11 @@
+---
+- name: devstack
+  vars:
+    tmpl_path: {{temlpate_path}}
+  hosts: computes
+  remote_user: stack
+  tasks:
+  - git: repo=https://github.com/openstack-dev/devstack.git
+         dest=/home/stack/devstack
+  - template: src={{'{{tmpl_path}}'}} dest=/home/stack/devstack/local.conf
+
