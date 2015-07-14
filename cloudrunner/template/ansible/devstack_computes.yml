@@ -1,5 +1,5 @@
 ---
-- name: devstack
+- name: devstack compute setup
   vars:
     tmpl_path: {{temlpate_path}}
   hosts: computes
@@ -8,4 +8,5 @@
   - git: repo=https://github.com/openstack-dev/devstack.git
          dest=/home/stack/devstack
   - template: src={{'{{tmpl_path}}'}} dest=/home/stack/devstack/local.conf
+  - shell: /home/stack/devstack/stack.sh >> /home/stack/devstack.log
 
