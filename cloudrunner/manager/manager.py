@@ -70,9 +70,9 @@ class CloudManager(object):
 
         # subprocess.call('virt-resize --expand /dev/sda1 ' + image +' ' +os.path.join(node.home, 'root.qcow2'), shell=True)
         subprocess.call('cp ' + image + ' ' + node.home, shell=True)
-        subprocess.call(' qemu-img resize ' + os.path.join(node.home, self.app.image_name)+' +' + node.size, shell=True)
+        subprocess.call(' qemu-img resize ' + os.path.join(node.home, self.app.image_name)+' +' + node.disk_size, shell=True)
         subprocess.call('virt-install --connect=qemu:///system  --name ' + node.name +
-                         ' --ram 1536 --disk path=' + os.path.join(node.home, self.app.image_name) +
+                         ' --ram ' + node.memory + ' --disk path=' + os.path.join(node.home, self.app.image_name) +
                          ',device=disk,format=qcow2 --disk path='+os.path.join(node.home, 'config.iso')+',device=cdrom '
                          '--vcpus=1 --vnc --noautoconsole --import  --network network:' + self.network.name, shell=True)
 

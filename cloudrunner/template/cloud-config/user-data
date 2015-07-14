@@ -1,4 +1,5 @@
 #cloud-config
+hostname: {{node.name}}
 users:
  - default
  - name: stack

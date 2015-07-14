@@ -53,7 +53,8 @@ class Node(Base):
         'address',
         'controller',
         'home',
-        'size'
+        'disk_size',
+        'memory'
     }
 
     def __init__(self, **kwargs):
