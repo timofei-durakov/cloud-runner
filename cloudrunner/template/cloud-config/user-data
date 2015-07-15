@@ -13,6 +13,10 @@ users:
 
 bootcmd:
  - echo nameserver {{app.network.gateway}} > /etc/resolv.conf
+{% for node in app.nodes %}
+ - echo {{node.address}} {{node.name}} >> /etc/hosts
+{% endfor %}
+
 
 packages:
  - git
