@@ -2,6 +2,7 @@ __author__ = 'tdurakov'
 import argparse
 import ConfigParser
 from BaseHTTPServer import HTTPServer
+import os
 
 import objects
 import cloudrunner.hypervisor.manager as hyp_man
@@ -10,10 +11,16 @@ import cloudrunner.callback.server as srv
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('conf', help="config file")
-    parser.add_argument('command', help="command to execute")
+    parser = argparse.ArgumentParser(prog='cloudrunner')
+    parser.add_argument('-c', dest='conf', metavar='cloud.conf', required=True,
+                        help="configuration file")
+    parser.add_argument('command',
+                        choices=['deploy', 'destroy', 'vms', 'ansible-only'],
+                        help="command to execute")
     args = parser.parse_args()
+    if not (os.path.exists(args.conf)):
+        print 'cloud.conf file %s not found. exiting...' % args.conf
+        return 1
     config = ConfigParser.ConfigParser()
     config.read(args.conf)
     sections = config._sections
