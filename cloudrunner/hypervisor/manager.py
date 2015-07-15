@@ -47,6 +47,9 @@ class CloudManager(object):
     def _destroy_node(self, node):
         subprocess.call('virsh destroy %s' % node.name, shell=True)
         subprocess.call('virsh undefine %s' % node.name, shell=True)
+        subprocess.call(
+            'ssh-keygen -f "/home/$USER/.ssh/known_hosts" -R %s' % node.address,
+            shell=True)
 
     def _deploy_node(self, node):
         node_path = os.path.join(self.app.env_home, node.name)
