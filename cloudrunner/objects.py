@@ -15,7 +15,6 @@ class Network(Base):
     fields = {
         'name',
         'bridge',
-        'network',
         'netmask',
         'broadcast',
         'gateway',

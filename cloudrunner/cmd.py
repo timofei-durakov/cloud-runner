@@ -15,7 +15,8 @@ def main():
     parser.add_argument('-c', dest='conf', metavar='cloud.conf', required=True,
                         help="configuration file")
     parser.add_argument('command',
-                        choices=['deploy', 'destroy', 'vms', 'ansible-only'],
+                        choices=['deploy', 'destroy', 'vms', 'devstack-only',
+                                 'rabbit-only'],
                         help="command to execute")
     args = parser.parse_args()
     if not (os.path.exists(args.conf)):
@@ -39,18 +40,23 @@ def main():
             controller_address = node.address
     app_obj.controller_address = controller_address
     hypervisor_manager = hyp_man.CloudManager(app_obj)
-    ansible_manager = ans_man.AnsibleManager(app_obj)
+
     command = args.command
     if command == 'deploy':
         hypervisor_manager.deploy()
         wait_for_call_home(hypervisor_manager)
+        ansible_manager = ans_man.DevstackManager(app_obj)
         ansible_manager.run_ansible()
     elif command == 'vms':
         hypervisor_manager.deploy()
         wait_for_call_home(hypervisor_manager)
     elif command == 'destroy':
         hypervisor_manager.destroy()
-    elif command == 'ansible-only':
+    elif command == 'devstack-only':
+        ansible_manager = ans_man.DevstackManager(app_obj)
+        ansible_manager.run_ansible()
+    elif command == 'rabbit-only':
+        ansible_manager = ans_man.RabbitManager(app_obj)
         ansible_manager.run_ansible()
 
 
