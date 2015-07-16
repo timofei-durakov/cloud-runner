@@ -1,5 +1,5 @@
 ---
-- name: rabbit master setup
+- name: rabbit setup
   sudo: yes
   hosts:
   - controllers
@@ -13,4 +13,12 @@
   - raw: sudo invoke-rc.d rabbitmq-server stop
   - raw: sudo echo RETXAFUOIIIVVBGFFBBU > /var/lib/rabbitmq/.erlang.cookie
   - template: src={{temlpate_path}} dest=/etc/rabbitmq/rabbitmq.config
-  - raw: sudo rabbitmq-server -detached
+- name: start rabbit
+  sudo: yes
+  hosts:
+  - controllers
+  - computes
+  remote_user: stack
+  serial: 1
+  tasks:
+  - raw: sudo rabbitmq-server -detached && sleep 10
