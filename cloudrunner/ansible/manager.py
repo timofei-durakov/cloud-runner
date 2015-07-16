@@ -50,7 +50,7 @@ class Base(object):
 class DevstackManager(Base):
 
     def __init__(self, app):
-        super(DevstackManager, self).__init__()
+        super(DevstackManager, self).__init__(app)
 
     def _generate_ansible_templates(self):
         compute = os.path.join(self.app.env_home, 'compute.local.conf')
