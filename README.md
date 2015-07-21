@@ -6,7 +6,7 @@ cloud-runner is a tool for vm provision and devstack deployment
  - valid cloud image - `ubuntu`-based
 
 #Usage:
-cloudrunner [-h] -c cloud.conf {deploy,destroy,vms,devstack-only,rabbit-only}
+cloudrunner [-h] -c cloud.conf {deploy,destroy,vms,devstack,rabbitmq,rabbitmq-clusterer}
 
 where:
 
@@ -17,8 +17,9 @@ possible goals:
  - `deploy` - vm provision for destack node and devstack setup
  - `destroy` - full environment cleanup
  - `vms` - only vm provision, no devstack installed
- - `devstack-only` - only devstack install
- - `rabbit-only` - only rabbitmq install
+ - `devstack` - devstack install on existing vms
+ - `rabbitmq` - rabbitmq install on existing vms
+ - `rabbitmq-clusterer` - rabbitmq with clusterer plugin install on existing vms
 
 #cloud.conf
  Configuration file consists of 3 section types:
