@@ -1,0 +1,33 @@
+---
+- name: rabbit setup
+  sudo: yes
+  hosts:
+  - controllers
+  - computes
+  remote_user: stack
+  tasks:
+  - apt: name=erlang state=present
+  - apt: name=erlang-nox state=present
+  - apt: name=libxslt-dev state=present
+  - apt: name=xsltproc state=present
+  - apt: name=zip state=present
+  - apt: name=make state=present
+  - apt: name=rabbitmq-server state=present
+  - git: repo=https://github.com/rabbitmq/rabbitmq-public-umbrella.git dest=/home/stack/rabbitmq-public-umbrella
+  - git: repo=https://github.com/rabbitmq/rabbitmq-clusterer.git dest=/home/stack/rabbitmq-public-umbrella/rabbitmq-clusterer
+  - raw: sudo patch /usr/lib/rabbitmq/lib/rabbitmq_server-3.2.4/sbin/rabbitmq-server < /home/stack/rabbitmq-public-umbrella/rabbitmq-clusterer/rabbitmq-server.patch
+  - shell: make co
+    args:
+      chdir: /home/stack/rabbitmq-public-umbrella
+  - shell: VERSION=1.0.0 make
+    args:
+      chdir: /home/stack/rabbitmq-public-umbrella/rabbitmq-clusterer
+  - shell: cp /home/stack/rabbitmq-public-umbrella/rabbitmq-clusterer/dist/rabbitmq_clusterer-1.0.0.ez  /usr/lib/rabbitmq/lib/rabbitmq_server-3.2.4/plugins/rabbitmq_clusterer.ez
+  - shell: rabbitmq-plugins enable rabbitmq_clusterer
+  - raw: sudo rabbitmq-plugins enable rabbitmq_management
+  - raw: sudo rabbitmqctl stop_app
+  - raw: sudo rabbitmqctl reset
+  - raw: sudo invoke-rc.d rabbitmq-server stop
+  - raw: sudo echo RETXAFUOIIIVVBGFFBBU > /var/lib/rabbitmq/.erlang.cookie
+  - template: src={{temlpate_path}} dest=/etc/rabbitmq/rabbitmq.config
+  - shell: rabbitmq-server -detached

@@ -15,8 +15,8 @@ def main():
     parser.add_argument('-c', dest='conf', metavar='cloud.conf', required=True,
                         help="configuration file")
     parser.add_argument('command',
-                        choices=['deploy', 'destroy', 'vms', 'devstack-only',
-                                 'rabbit-only'],
+                        choices=['deploy', 'destroy', 'vms', 'devstack',
+                                 'rabbitmq', 'rabbitmq-clusterer'],
                         help="command to execute")
     args = parser.parse_args()
     if not (os.path.exists(args.conf)):
@@ -52,11 +52,14 @@ def main():
         wait_for_call_home(hypervisor_manager)
     elif command == 'destroy':
         hypervisor_manager.destroy()
-    elif command == 'devstack-only':
+    elif command == 'devstack':
         ansible_manager = ans_man.DevstackManager(app_obj)
         ansible_manager.run_ansible()
-    elif command == 'rabbit-only':
+    elif command == 'rabbitmq':
         ansible_manager = ans_man.RabbitManager(app_obj)
+        ansible_manager.run_ansible()
+    elif command == 'rabbitmq-clusterer':
+        ansible_manager = ans_man.RabbitClustererManager(app_obj)
         ansible_manager.run_ansible()
 
 

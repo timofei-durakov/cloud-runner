@@ -8,12 +8,20 @@ from jinja2 import Environment, PackageLoader
 
 
 class Base(object):
-    def __init__(self, app):
+    def __init__(self, app, template_params, templates):
         self.env = Environment(loader=PackageLoader('cloudrunner', 'template'))
         self.app = app
+        self.template_params = template_params
+        self.templates = templates
 
     def _generate_ansible_templates(self):
-        raise NotImplementedError()
+        for template in self.templates:
+            self._generate_template(template)
+
+    def _generate_template(self, name):
+        out_file = os.path.join(self.app.env_home, name)
+        template = self.env.get_template('ansible/%s' % name)
+        template.stream(**self.template_params).dump(out_file)
 
     def _generate_ansible_playbook(self):
         raise NotImplementedError()
@@ -50,16 +58,10 @@ class Base(object):
 class DevstackManager(Base):
 
     def __init__(self, app):
-        super(DevstackManager, self).__init__(app)
+        template_params = {'app': app}
+        templates = ['compute.local.conf', 'controller.local.conf']
+        super(DevstackManager, self).__init__(app, template_params, templates)
 
-    def _generate_ansible_templates(self):
-        compute = os.path.join(self.app.env_home, 'compute.local.conf')
-        compute_template = self.env.get_template('ansible/compute.local.conf')
-        compute_template.stream(app=self.app).dump(compute)
-        controller = os.path.join(self.app.env_home, 'controller.local.conf')
-        controller_template = self.env.get_template(
-            'ansible/controller.local.conf')
-        controller_template.stream(app=self.app).dump(controller)
 
     def _generate_ansible_playbook(self):
         controller_playbook = os.path.join(self.app.env_home,
@@ -95,19 +97,18 @@ class DevstackManager(Base):
 
 class RabbitManager(Base):
 
-    def __init__(self, app):
-        super(RabbitManager, self).__init__(app)
+    def __init__(self, app, template_params=None, templates=None):
+        self.app = app
+        if not template_params and not templates:
+            template_params = {'cluster_nodes': self._cluster_nodes()}
+            templates = ['rabbitmq.config']
+        super(RabbitManager, self).__init__(app, template_params, templates)
 
-    def _generate_ansible_templates(self):
+    def _cluster_nodes(self):
         cluster_nodes = []
         for node in self.app.nodes:
             cluster_nodes.append('rabbit@%s' % node.name)
-        cluster_nodes = repr(cluster_nodes)
-
-        rabbit = os.path.join(self.app.env_home, 'rabbitmq.config')
-        rabbit_template = self.env.get_template(
-            'ansible/rabbitmq.config')
-        rabbit_template.stream(cluster_nodes=cluster_nodes).dump(rabbit)
+        return repr(cluster_nodes)
 
     def _generate_ansible_playbook(self):
         rabbit_playbook = os.path.join(self.app.env_home,
@@ -128,4 +129,40 @@ class RabbitManager(Base):
                         shell=True)
 
 
+class RabbitClustererManager(RabbitManager):
 
+    def __init__(self, app):
+        self.app = app
+        template_params = {'cluster_nodes': self._cluster_nodes()}
+        super(RabbitClustererManager, self).__init__(
+            app, template_params, ['rabbitmq-clusterer.config'])
+
+    def _cluster_nodes(self):
+        cluster_nodes = '['
+        counter = 0
+        for node in self.app.nodes:
+            if counter > 0:
+                cluster_nodes += ', '
+            else:
+                counter = 1
+            cluster_nodes += '{rabbit@%s, disc}' % node.name
+        cluster_nodes += ']'
+        return cluster_nodes
+
+    def _generate_ansible_playbook(self):
+        rabbit_playbook = os.path.join(self.app.env_home,
+                                        'rabbit-clusterer.yml')
+        rabbit_template = self.env.get_template(
+            'ansible/rabbit-clusterer.yml')
+        rabbit_conf = os.path.join(self.app.env_home,
+                                          'rabbitmq-clusterer.config')
+        rabbit_template.stream(
+            temlpate_path=rabbit_conf).dump(rabbit_playbook)
+
+    def _run_playbooks(self):
+        hosts = os.path.join(self.app.env_home, 'hosts')
+
+        rabbits = os.path.join(self.app.env_home,
+                                   'rabbit-clusterer.yml')
+        subprocess.call('ansible-playbook -i %s %s' % (hosts, rabbits),
+                        shell=True)
