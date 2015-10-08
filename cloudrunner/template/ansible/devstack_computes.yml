@@ -3,6 +3,13 @@
   hosts: computes
   remote_user: stack
   tasks:
+    - name: check if auto-generated ssh key exist
+    local_action: stat path="./keys/private"
+    register: result
+  - copy: src=./keys/private dest=/home/stack/.ssh/id_rsa mode=600
+    when: result|success
+  - copy: src=./keys/public dest=/home/stack/.ssh/id_rsa.pub mode=600
+    when: result|success
   - git: repo=https://github.com/openstack-dev/devstack.git
          dest=/home/stack/devstack
   - template: src={{temlpate_path}} dest=/home/stack/devstack/local.conf
