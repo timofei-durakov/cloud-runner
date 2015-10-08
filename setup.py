@@ -17,6 +17,8 @@ setup(
     },
     install_requires=[
         'jinja2',
-        'netaddr'
+        'netaddr',
+        'pycrypto'
+
     ]
 )
