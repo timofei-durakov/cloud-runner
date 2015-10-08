@@ -15,7 +15,7 @@ class CloudManager(object):
     def deploy(self):
         if not os.path.exists(self.app.env_home):
             os.makedirs(self.app.env_home)
-        if not self.app.server_key:
+        if not hasattr(self.app,'server_key'):
             self._generate_ssh_keys()
         self._create_network()
         for node in self.app.nodes:
@@ -27,13 +27,15 @@ class CloudManager(object):
             os.makedirs(key_path)
         private = RSA.generate(1024)
         private_key = os.path.join(key_path, 'private')
-        with open(private_key, "w") as private_file:
+        with os.fdopen(os.open(private_key, os.O_WRONLY | os.O_CREAT, 0600), 
+                       'w') as private_file:
             private_file.write(private.exportKey())
         public = private.publickey()
         public_key = os.path.join(key_path, 'public')
-        with open(public_key, "w") as public_file:
+        with os.fdopen(os.open(public_key, os.O_WRONLY | os.O_CREAT, 0600), 
+                       'w') as public_file:
             public_file.write(public.exportKey())
-        self.app.server_key = public.exportKey()
+	self.app.server_key = public.exportKey(format='OpenSSH')
 
     def destroy(self):
         for node in self.app.nodes:

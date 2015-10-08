@@ -46,10 +46,10 @@ class Base(object):
             config.set('computes', node.address)
         config.add_section('controllers:vars')
         private_key_path = os.path.join(self.app.env_home, 'keys', 'private')
-        config.add_section('controllers:vars', 'ansible_ssh_private_key_file',
+        config.set('controllers:vars', 'ansible_ssh_private_key_file',
                            private_key_path)
         config.add_section('computes:vars')
-        config.add_section('computes:vars', 'ansible_ssh_private_key_file',
+        config.set('computes:vars', 'ansible_ssh_private_key_file',
                            private_key_path)
         inventory_path = os.path.join(self.app.env_home, 'hosts')
         with open(inventory_path, 'wb') as configfile:
