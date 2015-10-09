@@ -51,7 +51,7 @@ class App(Base):
         self.network = network
         self.nodes = nodes
         self.controller_address = controller_address
-
+        self.keys = []
 
 class Node(Base):
     fields = {

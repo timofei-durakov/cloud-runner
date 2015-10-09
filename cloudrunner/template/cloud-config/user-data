@@ -9,7 +9,9 @@ users:
    groups: sudo
    shell: /bin/bash
    ssh-authorized-keys:
-    - {{app.server_key}}
+   {% for key in app.keys -%}
+    - {{key}}
+   {% endfor %}
 
 bootcmd:
  - echo nameserver {{app.network.gateway}} > /etc/resolv.conf
