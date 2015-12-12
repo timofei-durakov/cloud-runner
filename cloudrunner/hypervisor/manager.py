@@ -5,6 +5,7 @@ import os
 from  Crypto.PublicKey import RSA
 from jinja2 import Environment, PackageLoader
 
+from cloudrunner import objects
 
 class CloudManager(object):
     def __init__(self, app):
@@ -15,10 +16,9 @@ class CloudManager(object):
     def deploy(self):
         if not os.path.exists(self.app.env_home):
             os.makedirs(self.app.env_home)
-        (_, public) = self._generate_ssh_keys()
-        self.app.keys.append(public.exportKey(format='OpenSSH'))
-        if hasattr(self.app, 'server_key'):
-            self.app.keys.append(self.app.server_key)
+        key_pair = self._generate_ssh_keys()
+
+        self.app.key_pair = key_pair
         self._create_network()
         for node in self.app.nodes:
             self._deploy_node(node)
@@ -37,7 +37,8 @@ class CloudManager(object):
         with os.fdopen(os.open(public_key, os.O_WRONLY | os.O_CREAT, 0600), 
                        'w') as public_file:
             public_file.write(public.exportKey(format='OpenSSH'))
-        return private, public
+        return objects.KeyPairKeyPair(private.exportKey(),
+                                      public.exportKey(format='OpenSSH'))
 
     def destroy(self):
         for node in self.app.nodes:

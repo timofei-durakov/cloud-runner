@@ -9,9 +9,23 @@ users:
    groups: sudo
    shell: /bin/bash
    ssh-authorized-keys:
-   {% for key in app.keys -%}
-    - {{key}}
-   {% endfor %}
+   {% if app.server_key %}
+    - {{app.server_key}}
+   {% endif %}
+    - {{app.key_pair.public}}
+
+write_files:
+  - path: /home/stack/.ssh/id_rsa
+    permissions: '0600'
+    owner: stack:stack
+    content: |
+      {{app.key_pair.private}}
+
+  - path: /home/stack/.ssh/id_rsa.pub
+    permissions: '0600'
+    owner: stack:stack
+    content: |
+      {{app.key_pair.public}}
 
 bootcmd:
  - echo nameserver {{app.network.gateway}} > /etc/resolv.conf

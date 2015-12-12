@@ -4,6 +4,7 @@ import os
 
 import netaddr
 
+
 class Base(object):
     def __init__(self, fields, **kwargs):
         for key in kwargs.keys():
@@ -51,7 +52,14 @@ class App(Base):
         self.network = network
         self.nodes = nodes
         self.controller_address = controller_address
-        self.keys = []
+        self.key_pair = None
+
+
+class KeyPair(object):
+    def __init__(self, private, public):
+        self.private = private
+        self.public = public
+
 
 class Node(Base):
     fields = {
