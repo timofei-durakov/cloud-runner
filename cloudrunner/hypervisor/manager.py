@@ -37,7 +37,7 @@ class CloudManager(object):
         with os.fdopen(os.open(public_key, os.O_WRONLY | os.O_CREAT, 0600), 
                        'w') as public_file:
             public_file.write(public.exportKey(format='OpenSSH'))
-        return objects.KeyPairKeyPair(private.exportKey(),
+        return objects.KeyPair(private.exportKey(),
                                       public.exportKey(format='OpenSSH'))
 
     def destroy(self):
@@ -87,13 +87,15 @@ class CloudManager(object):
             'qemu-img resize %s +%s' % (image_path, node.disk_size),
             shell=True)
         config_path = os.path.join(node.home, 'config.iso')
+	console_path = os.path.join(node.home, 'console.log')
         subprocess.call(
             'virt-install --connect=qemu:///system  --name %s --ram %s '
             '--disk path=%s,device=disk,format=qcow2 '
             '--disk path=%s,device=cdrom --vcpus=1 '
-            '--vnc --noautoconsole --import  --network network:%s'
+            '--vnc --import  --network network:%s '
+            '--serial file,path=%s'
             % (node.name, node.memory, image_path, config_path,
-               self.app.network.name), shell=True)
+               self.app.network.name, console_path), shell=True)
 
     def _generate_cloud_config(self, node):
         metadata = os.path.join(node.home, 'meta-data')

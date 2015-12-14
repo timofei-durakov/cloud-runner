@@ -9,31 +9,15 @@ users:
    groups: sudo
    shell: /bin/bash
    ssh-authorized-keys:
-   {% if app.server_key %}
-    - {{app.server_key}}
-   {% endif %}
     - {{app.key_pair.public}}
-
-write_files:
-  - path: /home/stack/.ssh/id_rsa
-    permissions: '0600'
-    owner: stack:stack
-    content: |
-      {{app.key_pair.private}}
-
-  - path: /home/stack/.ssh/id_rsa.pub
-    permissions: '0600'
-    owner: stack:stack
-    content: |
-      {{app.key_pair.public}}
-
+{% if app.server_key %}
+    - {{app.server_key}}
+{% endif %}
 bootcmd:
  - echo nameserver {{app.network.gateway}} > /etc/resolv.conf
 {% for node in app.nodes %}
  - echo {{node.address}} {{node.name}} >> /etc/hosts
 {% endfor %}
-
-
 packages:
  - git
  - traceroute
@@ -43,3 +27,19 @@ packages:
 phone_home:
   url: http://{{app.network.gateway}}:{{app.callback_port}}
   post: all
+ssh_keys:
+  rsa_private: |
+     {{app.key_pair.private | indent(5, False)}}
+  rsa_public: {{app.key_pair.public}}
+write_files:
+ - path: /tmp/id_rsa
+   content: |
+     {{app.key_pair.private | indent(5, False)}}
+   owner: stack:stack
+   permissions: '0600'
+runcmd:
+  - whoami
+  - ls -la /tmp
+  - chown stack:stack /home/stack
+  - mv /tmp/id_rsa /home/stack/.ssh/id_rsa
+  - chown stack:stack /home/stack/.ssh/id_rsa
