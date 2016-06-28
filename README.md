@@ -43,6 +43,7 @@ possible goals:
      * address - ip address
      * disk_size - amount of  memory for hdd in GB. Example: 20G
      * memory - amount of RAM Example: 3500
+     * cpu - amount of vcpus Example: 2
 
 
 Example: 
