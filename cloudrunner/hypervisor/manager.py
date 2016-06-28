@@ -90,11 +90,11 @@ class CloudManager(object):
         console_path = os.path.join(node.home, 'console.log')
         subprocess.call(
             'virt-install --connect=qemu:///system  --name %s --ram %s '
-            '--disk path=%s,device=disk,format=qcow2 '
-            '--disk path=%s,device=cdrom --vcpus=2 '
+            '--vcpus=%s --disk path=%s,device=disk,format=qcow2 '
+            '--disk path=%s,device=cdrom '
             '--vnc --import  --network network:%s --network network:private_ds '
             '--serial file,path=%s'
-            % (node.name, node.memory, image_path, config_path,
+            % (node.name, node.memory, node.cpu, image_path, config_path,
                self.app.network.name, console_path), shell=True)
 
     def _generate_cloud_config(self, node):

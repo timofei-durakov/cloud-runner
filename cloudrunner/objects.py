@@ -69,6 +69,7 @@ class Node(Base):
         'home',
         'disk_size',
         'memory',
+        'cpu',
         'node_home'
     }
 
