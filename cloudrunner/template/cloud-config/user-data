@@ -1,5 +1,8 @@
 #cloud-config
 hostname: {{node.name}}
+debug:
+   verbose: true
+   output: /var/log/cloud-init/
 users:
  - default
  - name: stack
@@ -35,7 +38,6 @@ write_files:
  - path: /tmp/id_rsa
    content: |
      {{app.key_pair.private | indent(5, False)}}
-   owner: stack:stack
    permissions: '0600'
 runcmd:
   - whoami

@@ -87,12 +87,12 @@ class CloudManager(object):
             'qemu-img resize %s +%s' % (image_path, node.disk_size),
             shell=True)
         config_path = os.path.join(node.home, 'config.iso')
-	console_path = os.path.join(node.home, 'console.log')
+        console_path = os.path.join(node.home, 'console.log')
         subprocess.call(
             'virt-install --connect=qemu:///system  --name %s --ram %s '
             '--disk path=%s,device=disk,format=qcow2 '
-            '--disk path=%s,device=cdrom --vcpus=1 '
-            '--vnc --import  --network network:%s '
+            '--disk path=%s,device=cdrom --vcpus=2 '
+            '--vnc --import  --network network:%s --network network:private_ds '
             '--serial file,path=%s'
             % (node.name, node.memory, image_path, config_path,
                self.app.network.name, console_path), shell=True)

@@ -96,11 +96,13 @@ class DevstackManager(Base):
         # run controllers
         controllers = os.path.join(self.app.env_home,
                                    'devstack_controllers.yml')
-        subprocess.call('ansible-playbook -i %s %s' % (hosts, controllers),
+        subprocess.call('ANSIBLE_HOST_KEY_CHECKING=False '
+                        'ansible-playbook -i %s %s' % (hosts, controllers),
                         shell=True)
         # run computes
         computes = os.path.join(self.app.env_home, 'devstack_computes.yml')
-        subprocess.call('ansible-playbook -i %s %s' % (hosts, computes),
+        subprocess.call('ANSIBLE_HOST_KEY_CHECKING=False '
+                        'ansible-playbook -i %s %s' % (hosts, computes),
                         shell=True)
 
 
