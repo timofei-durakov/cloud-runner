@@ -92,7 +92,7 @@ class CloudManager(object):
             'virt-install --connect=qemu:///system  --name %s --ram %s '
             '--vcpus=%s --disk path=%s,device=disk,format=qcow2 '
             '--disk path=%s,device=cdrom '
-            '--vnc --import  --network network:%s --network network:private_ds '
+            '--vnc --import  --network network:%s '
             '--serial file,path=%s'
             % (node.name, node.memory, node.cpu, image_path, config_path,
                self.app.network.name, console_path), shell=True)
