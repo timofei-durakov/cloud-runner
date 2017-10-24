@@ -5,8 +5,9 @@ cloud-runner is a tool for vm provision and devstack deployment
  - `cloud-runner` uses `Ansible` to deliver configuration to devstack nodes
  - valid cloud image - `ubuntu`-based
 
-#Usage:
-cloudrunner [-h] -c cloud.conf {deploy,destroy,vms,devstack,rabbitmq,rabbitmq-clusterer}
+# Usage:
+
+    cloudrunner [-h] -c cloud.conf {deploy,destroy,vms,devstack,rabbitmq,rabbitmq-clusterer}
 
 where:
 
