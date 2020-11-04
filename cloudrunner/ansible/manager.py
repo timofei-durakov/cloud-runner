@@ -1,10 +1,11 @@
 __author__ = 'tdurakov'
 
-import ConfigParser
+import configparser
 import os
 import subprocess
 
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment
+from jinja2 import PackageLoader
 
 
 class Base(object):
@@ -37,7 +38,7 @@ class Base(object):
                 controllers.append(node)
             else:
                 computes.append(node)
-        config = ConfigParser.RawConfigParser(allow_no_value=True)
+        config = configparser.RawConfigParser(allow_no_value=True)
         config.add_section('controllers')
         for node in controllers:
             config.set('controllers', node.address)
@@ -70,7 +71,6 @@ class DevstackManager(Base):
         template_params = {'app': app}
         templates = ['compute.local.conf', 'controller.local.conf']
         super(DevstackManager, self).__init__(app, template_params, templates)
-
 
     def _generate_ansible_playbook(self):
         controller_playbook = os.path.join(self.app.env_home,
@@ -123,11 +123,11 @@ class RabbitManager(Base):
 
     def _generate_ansible_playbook(self):
         rabbit_playbook = os.path.join(self.app.env_home,
-                                        'rabbit.yml')
+                                       'rabbit.yml')
         rabbit_template = self.env.get_template(
             'ansible/rabbit.yml')
         rabbit_conf = os.path.join(self.app.env_home,
-                                          'rabbitmq.config')
+                                   'rabbitmq.config')
         rabbit_template.stream(
             temlpate_path=rabbit_conf).dump(rabbit_playbook)
 
@@ -135,7 +135,7 @@ class RabbitManager(Base):
         hosts = os.path.join(self.app.env_home, 'hosts')
 
         rabbits = os.path.join(self.app.env_home,
-                                   'rabbit.yml')
+                               'rabbit.yml')
         subprocess.call('ansible-playbook -i %s %s' % (hosts, rabbits),
                         shell=True)
 
@@ -162,11 +162,11 @@ class RabbitClustererManager(RabbitManager):
 
     def _generate_ansible_playbook(self):
         rabbit_playbook = os.path.join(self.app.env_home,
-                                        'rabbit-clusterer.yml')
+                                       'rabbit-clusterer.yml')
         rabbit_template = self.env.get_template(
             'ansible/rabbit-clusterer.yml')
         rabbit_conf = os.path.join(self.app.env_home,
-                                          'rabbitmq-clusterer.config')
+                                   'rabbitmq-clusterer.config')
         rabbit_template.stream(
             temlpate_path=rabbit_conf).dump(rabbit_playbook)
 
@@ -174,6 +174,6 @@ class RabbitClustererManager(RabbitManager):
         hosts = os.path.join(self.app.env_home, 'hosts')
 
         rabbits = os.path.join(self.app.env_home,
-                                   'rabbit-clusterer.yml')
+                               'rabbit-clusterer.yml')
         subprocess.call('ansible-playbook -i %s %s' % (hosts, rabbits),
                         shell=True)

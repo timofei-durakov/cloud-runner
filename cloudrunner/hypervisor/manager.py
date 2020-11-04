@@ -1,11 +1,13 @@
+import os
 import shutil
 import subprocess
-import os
 
-from  Crypto.PublicKey import RSA
-from jinja2 import Environment, PackageLoader
+from Crypto.PublicKey import RSA
+from jinja2 import Environment
+from jinja2 import PackageLoader
 
 from cloudrunner import objects
+
 
 class CloudManager(object):
     def __init__(self, app):
@@ -28,17 +30,19 @@ class CloudManager(object):
         if not os.path.exists(key_path):
             os.makedirs(key_path)
         private = RSA.generate(1024)
+        private.exportKey()
         private_key = os.path.join(key_path, 'private')
-        with os.fdopen(os.open(private_key, os.O_WRONLY | os.O_CREAT, 0600), 
+        priv = private.exportKey().decode('utf-8')
+        with os.fdopen(os.open(private_key, os.O_WRONLY | os.O_CREAT, 0o600),
                        'w') as private_file:
-            private_file.write(private.exportKey())
+            private_file.write(priv)
         public = private.publickey()
         public_key = os.path.join(key_path, 'public')
-        with os.fdopen(os.open(public_key, os.O_WRONLY | os.O_CREAT, 0600), 
+        pub = public.exportKey(format='OpenSSH').decode('utf-8')
+        with os.fdopen(os.open(public_key, os.O_WRONLY | os.O_CREAT, 0o600),
                        'w') as public_file:
-            public_file.write(public.exportKey(format='OpenSSH'))
-        return objects.KeyPair(private.exportKey(),
-                                      public.exportKey(format='OpenSSH'))
+            public_file.write(pub)
+        return objects.KeyPair(priv, pub)
 
     def destroy(self):
         for node in self.app.nodes:

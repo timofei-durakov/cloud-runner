@@ -1,7 +1,6 @@
 __author__ = 'tdurakov'
 
-from BaseHTTPServer import BaseHTTPRequestHandler
-
+from http.server import BaseHTTPRequestHandler
 
 class ServerHandler(BaseHTTPRequestHandler):
 
@@ -10,7 +9,7 @@ class ServerHandler(BaseHTTPRequestHandler):
         BaseHTTPRequestHandler.__init__(self, *args)
 
     def do_POST(self):
-        print 'finished cloud-config on %s' % repr(self.client_address)
+        print('finished cloud-config on %s' % repr(self.client_address))
         self.send_response(200)
         self.manager.deployed_nodes.add(self.client_address)
         return

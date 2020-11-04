@@ -1,10 +1,10 @@
 __author__ = 'tdurakov'
 import argparse
-import ConfigParser
-from BaseHTTPServer import HTTPServer
+import configparser
+from http.server import HTTPServer
 import os
 
-import objects
+import cloudrunner.objects as objects
 import cloudrunner.hypervisor.manager as hyp_man
 import cloudrunner.ansible.manager as ans_man
 import cloudrunner.callback.server as srv
@@ -20,9 +20,9 @@ def main():
                         help="command to execute")
     args = parser.parse_args()
     if not (os.path.exists(args.conf)):
-        print 'cloud.conf file %s not found. exiting...' % args.conf
+        print('cloud.conf file %s not found. exiting...' % args.conf)
         return 1
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(args.conf)
     sections = config._sections
 
@@ -33,7 +33,7 @@ def main():
     app_obj = objects.App(network=net_obj, nodes=nodes_set,
                       controller_address=controller_address,
                       **sections.pop('app'))
-    for name, params in config._sections.iteritems():
+    for name, params in config._sections.items():
         node = objects.Node(**params)
         nodes_set.add(node)
         if (node.controller):
